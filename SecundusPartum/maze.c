@@ -1,3 +1,3 @@
-#include "init.h"
+#include "maze.h"
 
 // loads of definition of methods
