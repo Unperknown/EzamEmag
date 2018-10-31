@@ -2,7 +2,6 @@
 
 int main()
 {
-	//test code
-
+	mazeGame();
 	return 0;
 }
