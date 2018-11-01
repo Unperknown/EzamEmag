@@ -11,14 +11,15 @@ extern enum status Status;
 extern char board[30][30];
 //use those objects in static methods
 
-static int showOption();
+static int setInitalOption();
 static int playGame();
 static bool isEnd();
 //high level module
 
-static int setInitalStatus();
+static int checkExitStatus();
 static int setStatus(enum status);
 static enum status getStatus();
+static int setInitalValue();
 static int printOption();
 static int chooseOption();
 static int playSingleMaze();
@@ -28,26 +29,34 @@ static int demostrateMaze();
 static int customMaze();
 //middle level module
 
+static int clearBoard();
+static int setPlayer();
+//low level module
+
 int mazeGame()
 {
 	while (true)
 	{
 		do {
-			showOption();
+			setInitalOption();
 			playGame();
 		} while (isEnd());
 	}
 	return 1;
 }
 
-static int showOption()
+static int setInitalOption()
 {
+	setInitalValue();
 	printOption();
 	chooseOption();
-	setInitalStatus();
+
+	return 1;
 }
 static int playGame()
 {
+	checkExitStatus();
+
 	switch (getStatus())
 	{
 	case SINGLE_MAZE: playSingleMaze(); break;
@@ -57,41 +66,52 @@ static int playGame()
 	case CUSTOM_MAZE: customMaze(); break;
 	}
 	setStatus(STOPPED);
+
+	return 1;
 }
 static bool isEnd()
 {
 	return getStatus() == STOPPED;
 }
 
-static int setInitalStatus()
+static int checkExitStatus()
 {
 	if (getStatus() == EXIT)
+	{
+		wprintf(L"프로그램을 종료한대요!\n"); //need to be improved
+		getwchar();
+		getwchar();
 		exit(EXIT_FAILURE);
-	else
-		setStatus(START);
+		return 0;
+	}
+	return 1;
 }
 static int setStatus(enum status value)
 {
 	Status = value;
+	return 1;
 }
-static int getStatus()
+static enum status getStatus()
 {
 	return Status;
 }
+static int setInitalValue()
+{
+	setStatus(INITAL);
+	clearBoard();
+	setPlayer();
+}
 static int printOption()
 {
-	wprintf(L"메뉴 출력");
+	wprintf(L"어떻게 생긴 초기 출력 화면들\n");
 	return 1;
 }
 static int chooseOption()
 {
-	enum status option;
-	int temp_input; //will be replaced with choosing by cursor location soon
+	enum status option; //will be replaced with choosing by cursor location soon
 
-	wprintf(L"메뉴 선택\n");
-	scanf("%d", &temp_input); //will be replaced with choosing by cursor location soon
-	
-	option = temp_input;
+	wprintf(L"할 게임의 종류를 선택하라는 출력 화면들\n");
+	scanf("%d", &option); //will be replaced with choosing by cursor location soon
 
 	switch (option)
 	{
@@ -100,6 +120,8 @@ static int chooseOption()
 	case MAZE_WITH_COMPUTER: setStatus(MAZE_WITH_COMPUTER); break;
 	case DEMOSTRATE_MAZE: setStatus(DEMOSTRATE_MAZE); break;
 	case CUSTOM_MAZE: setStatus(CUSTOM_MAZE); break;
+	case EXIT: setStatus(EXIT); break;
+	default: wprintf(L"어떻게 이상한 걸 선택할 수 있죠?\n"); break;
 	}
 	return 1;
 }
@@ -126,5 +148,17 @@ static int demostrateMaze()
 static int customMaze()
 {
 	wprintf(L"플레이어가 직접 맵을 만들어서 미로게임을 한대요\n");
+	return 1;
+}
+
+static int clearBoard()
+{
+	wprintf(L"미로 맵을 초기화하는 함수\n");
+	for (int i = 0; i < sizeof board / sizeof board[0]; i++) for (int j = 0; j < sizeof board / sizeof(char); j++) board[i][j] = ' ';
+	return 1;
+}
+static int setPlayer()
+{
+	wprintf(L"플레이어를 설정하는 함수\n");
 	return 1;
 }

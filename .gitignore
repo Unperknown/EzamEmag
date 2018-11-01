@@ -59,3 +59,9 @@ dkms.conf
 *.filters
 *.sln
 *.user
+
+*.log
+
+*.tlog
+
+*.opendb

@@ -1,10 +1,10 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #ifndef EZAMEMAG_H
 #define EZAMEMAG_H
 
 #include <stdbool.h>
-
-#define BLOCKED 'бс'
-#define NON-BLOCKED ' '
+#include <locale.h>
 
 /* loads of global method signatures and global variables
  *
@@ -20,10 +20,9 @@ typedef struct player {
 	char name[100];
 	bool isWon;
 	int score;
-	Player nextPlayer;
 }* Player;
 
-enum status { INITAL=-3, START, EXIT, STOPPED, SINGLE_MAZE, MULTIPLE_MAZE, MAZE_WITH_COMPUTER, DEMOSTRATE_MAZE, CUSTOM_MAZE } Status;
+enum status { INITAL=-2, EXIT, STOPPED, SINGLE_MAZE, MULTIPLE_MAZE, MAZE_WITH_COMPUTER, DEMOSTRATE_MAZE, CUSTOM_MAZE } Status;
 
 char board[30][30];
 
