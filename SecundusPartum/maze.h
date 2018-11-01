@@ -5,6 +5,9 @@
 
 #include <stdbool.h>
 #include <locale.h>
+#include <wchar.h>
+#include <stdlib.h>
+#include <Windows.h>
 
 /* loads of global method signatures and global variables
  *
@@ -25,6 +28,7 @@ typedef struct player {
 enum status { INITAL=-2, EXIT, STOPPED, SINGLE_MAZE, MULTIPLE_MAZE, MAZE_WITH_COMPUTER, DEMOSTRATE_MAZE, CUSTOM_MAZE } Status;
 
 char board[30][30];
+//use those objects in static methods
 
 int mazeGame();
 

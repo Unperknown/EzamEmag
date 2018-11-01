@@ -1,20 +1,4 @@
 #include "maze.h"
-#include <stdio.h>
-#include <wchar.h>
-#include <stdlib.h>
-#include <Windows.h>
-
-// loads of definition of methods
-
-extern int mazeGame();
-extern enum status Status;
-extern char board[30][30];
-//use those objects in static methods
-
-static int setInitalOption();
-static int playGame();
-static bool isEnd();
-//high level module
 
 static int checkExitStatus();
 static int setStatus(enum status);
@@ -28,51 +12,6 @@ static int playMazeWithComputer();
 static int demostrateMaze();
 static int customMaze();
 //middle level module
-
-static int clearBoard();
-static int setPlayer();
-//low level module
-
-int mazeGame()
-{
-	while (true)
-	{
-		do {
-			setInitalOption();
-			playGame();
-		} while (isEnd());
-	}
-	return 1;
-}
-
-static int setInitalOption()
-{
-	setInitalValue();
-	printOption();
-	chooseOption();
-
-	return 1;
-}
-static int playGame()
-{
-	checkExitStatus();
-
-	switch (getStatus())
-	{
-	case SINGLE_MAZE: playSingleMaze(); break;
-	case MULTIPLE_MAZE: playMultiMaze(); break;
-	case MAZE_WITH_COMPUTER: playMazeWithComputer(); break;
-	case DEMOSTRATE_MAZE: demostrateMaze(); break;
-	case CUSTOM_MAZE: customMaze(); break;
-	}
-	setStatus(STOPPED);
-
-	return 1;
-}
-static bool isEnd()
-{
-	return getStatus() == STOPPED;
-}
 
 static int checkExitStatus()
 {
@@ -100,6 +39,8 @@ static int setInitalValue()
 	setStatus(INITAL);
 	clearBoard();
 	setPlayer();
+
+	return 1;
 }
 static int printOption()
 {
@@ -111,7 +52,7 @@ static int chooseOption()
 	enum status option; //will be replaced with choosing by cursor location soon
 
 	wprintf(L"할 게임의 종류를 선택하라는 출력 화면들\n");
-	scanf("%d", &option); //will be replaced with choosing by cursor location soon
+	wscanf(L"%d", &option); //will be replaced with choosing by cursor location soon
 
 	switch (option)
 	{
@@ -148,17 +89,5 @@ static int demostrateMaze()
 static int customMaze()
 {
 	wprintf(L"플레이어가 직접 맵을 만들어서 미로게임을 한대요\n");
-	return 1;
-}
-
-static int clearBoard()
-{
-	wprintf(L"미로 맵을 초기화하는 함수\n");
-	for (int i = 0; i < sizeof board / sizeof board[0]; i++) for (int j = 0; j < sizeof board / sizeof(char); j++) board[i][j] = ' ';
-	return 1;
-}
-static int setPlayer()
-{
-	wprintf(L"플레이어를 설정하는 함수\n");
 	return 1;
 }
