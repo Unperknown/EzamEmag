@@ -67,7 +67,7 @@ int chooseOption()
 	case CUSTOM_MAZE: setStatus(CUSTOM_MAZE); break;
 	case EXIT: setStatus(EXIT); break;
 	default: wprintf(L"어떻게 이상한 걸 선택할 수 있죠?\n"); break;
-	}
+	} //need to be divided into method soon
 	return 1;
 }
 int playSingleMaze()

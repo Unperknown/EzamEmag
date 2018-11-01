@@ -7,7 +7,10 @@ int setPlayer();
 int clearBoard()
 {
 	wprintf(L"미로 맵을 초기화하는 함수\n");
-	for (int i = 0; i < sizeof board / sizeof board[0]; i++) for (int j = 0; j < sizeof board / sizeof(char); j++) board[i][j] = ' ';
+
+	for (int i = 0; i < sizeof board; i++)
+		*((char *)board + i) = ' ';
+
 	return 1;
 }
 int setPlayer()

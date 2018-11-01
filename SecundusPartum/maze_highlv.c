@@ -49,7 +49,7 @@ int playGame()
 	case MAZE_WITH_COMPUTER: playMazeWithComputer(); break;
 	case DEMOSTRATE_MAZE: demostrateMaze(); break;
 	case CUSTOM_MAZE: customMaze(); break;
-	}
+	} //need to be divided into method soon
 	setStatus(STOPPED);
 
 	return 1;
