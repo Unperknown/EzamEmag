@@ -1,9 +1,22 @@
 #include "maze.h"
 
-static int setInitalOption();
-static int playGame();
-static bool isEnd();
-//high level module
+int setInitalOption();
+int playGame();
+bool isEnd();
+//high level method
+
+extern int checkExitStatus();
+extern int setStatus(enum status);
+extern enum status getStatus();
+extern int setInitalValue();
+extern int printOption();
+extern int chooseOption();
+extern int playSingleMaze();
+extern int playMultiMaze();
+extern int playMazeWithComputer();
+extern int demostrateMaze();
+extern int customMaze();
+//import middle level method
 
 int mazeGame()
 {
@@ -17,7 +30,7 @@ int mazeGame()
 	return 1;
 }
 
-static int setInitalOption()
+int setInitalOption()
 {
 	setInitalValue();
 	printOption();
@@ -25,7 +38,7 @@ static int setInitalOption()
 
 	return 1;
 }
-static int playGame()
+int playGame()
 {
 	checkExitStatus();
 
@@ -41,7 +54,7 @@ static int playGame()
 
 	return 1;
 }
-static bool isEnd()
+bool isEnd()
 {
 	return getStatus() == STOPPED;
 }

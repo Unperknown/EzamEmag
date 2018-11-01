@@ -1,19 +1,23 @@
 #include "maze.h"
 
-static int checkExitStatus();
-static int setStatus(enum status);
-static enum status getStatus();
-static int setInitalValue();
-static int printOption();
-static int chooseOption();
-static int playSingleMaze();
-static int playMultiMaze();
-static int playMazeWithComputer();
-static int demostrateMaze();
-static int customMaze();
-//middle level module
+int checkExitStatus();
+int setStatus(enum status);
+enum status getStatus();
+int setInitalValue();
+int printOption();
+int chooseOption();
+int playSingleMaze();
+int playMultiMaze();
+int playMazeWithComputer();
+int demostrateMaze();
+int customMaze();
+//middle level method
 
-static int checkExitStatus()
+extern int clearBoard();
+extern int setPlayer();
+//import low level method
+
+int checkExitStatus()
 {
 	if (getStatus() == EXIT)
 	{
@@ -25,16 +29,16 @@ static int checkExitStatus()
 	}
 	return 1;
 }
-static int setStatus(enum status value)
+int setStatus(enum status value)
 {
 	Status = value;
 	return 1;
 }
-static enum status getStatus()
+enum status getStatus()
 {
 	return Status;
 }
-static int setInitalValue()
+int setInitalValue()
 {
 	setStatus(INITAL);
 	clearBoard();
@@ -42,12 +46,12 @@ static int setInitalValue()
 
 	return 1;
 }
-static int printOption()
+int printOption()
 {
 	wprintf(L"어떻게 생긴 초기 출력 화면들\n");
 	return 1;
 }
-static int chooseOption()
+int chooseOption()
 {
 	enum status option; //will be replaced with choosing by cursor location soon
 
@@ -66,27 +70,27 @@ static int chooseOption()
 	}
 	return 1;
 }
-static int playSingleMaze()
+int playSingleMaze()
 {
 	wprintf(L"1인용 미로게임이라네여\n");
 	return 1;
 }
-static int playMultiMaze()
+int playMultiMaze()
 {
 	wprintf(L"2인용 미로게임이래요\n");
 	return 1;
 }
-static int playMazeWithComputer()
+int playMazeWithComputer()
 {
 	wprintf(L"컴퓨터와 함께하는 미로게임이래요\n");
 	return 1;
 }
-static int demostrateMaze()
+int demostrateMaze()
 {
 	wprintf(L"컴퓨터의 미로게임을 관전한대요\n");
 	return 1;
 }
-static int customMaze()
+int customMaze()
 {
 	wprintf(L"플레이어가 직접 맵을 만들어서 미로게임을 한대요\n");
 	return 1;
