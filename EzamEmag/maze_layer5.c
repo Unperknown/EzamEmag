@@ -13,9 +13,10 @@ int demostrateMaze();
 int customMaze();
 //layer 5 methods
 
-extern int setGameData(int quantityOfMaze, int amountOfPlayer);
+extern int allocateMapMemory(OneMap *);
+extern int setGameData(int, int);
 extern int executeGame();
-extern int clearBoard();
+extern int selectByCersor();
 //import layer 4 methods
 
 int checkExitStatus()
@@ -42,23 +43,24 @@ enum status getStatus()
 int setInitalValue()
 {
 	setStatus(INITAL);
-	clearBoard();
 
 	return 1;
 }
 int printOption()
 {
-	wprintf(L"어떻게 생긴 초기 출력 화면들\n");
+	system("cls");
+	wprintf(L"\n\n\n\n\n");
+	wprintf(L"						미	로	찾	기\n\n");
+	wprintf(L"						▷	혼 자 서\n");
+	wprintf(L"						▷	둘 이 서\n");
+	wprintf(L"						▷	관 전 하 기\n");
+	wprintf(L"						▷	컴 퓨 터 랑\n");
+	wprintf(L"						▷	직 접 게 임");
 	return 1;
 }
 int chooseOption()
 {
-	enum status option; //will be replaced with choosing by cursor location soon
-
-	wprintf(L"할 게임의 종류를 선택하라는 출력 화면들\n");
-	wscanf(L"%d", &option); //will be replaced with choosing by cursor location soon
-
-	switch (option)
+	switch (selectByCersor())
 	{
 	case SINGLE_MAZE: setStatus(SINGLE_MAZE); break;
 	case MULTIPLE_MAZE: setStatus(MULTIPLE_MAZE); break;
@@ -66,41 +68,35 @@ int chooseOption()
 	case DEMOSTRATE_MAZE: setStatus(DEMOSTRATE_MAZE); break;
 	case CUSTOM_MAZE: setStatus(CUSTOM_MAZE); break;
 	case EXIT: setStatus(EXIT); break;
-	default: wprintf(L"어떻게 이상한 걸 선택할 수 있죠?\n"); break;
-	} //need to be divided into method soon
+	} //will be refactored soon
 	return 1;
 }
 int playSingleMaze()
 {
-	wprintf(L"1인용 미로게임이라네여\n");
 	setGameData(1, 1);
 	executeGame();
 	return 1;
 }
 int playMultiMaze()
 {
-	wprintf(L"2인용 미로게임이래요\n");
 	setGameData(2, 2);
 	executeGame();
 	return 1;
 }
 int playMazeWithComputer()
 {
-	wprintf(L"컴퓨터와 함께하는 미로게임이래요\n");
 	setGameData(2, 2);
 	executeGame();
 	return 1;
 }
 int demostrateMaze()
 {
-	wprintf(L"컴퓨터의 미로게임을 관전한대요\n");
 	setGameData(1, 1);
 	executeGame();
 	return 1;
 }
 int customMaze()
 {
-	wprintf(L"플레이어가 직접 맵을 만들어서 미로게임을 한대요\n");
 	setGameData(2, 2);
 	executeGame();
 	return 1;

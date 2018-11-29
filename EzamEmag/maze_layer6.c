@@ -42,6 +42,7 @@ int playGame()
 {
 	checkExitStatus();
 
+	//will be refactored soon
 	switch (getStatus())
 	{
 	case SINGLE_MAZE: playSingleMaze(); break;
@@ -49,7 +50,7 @@ int playGame()
 	case MAZE_WITH_COMPUTER: playMazeWithComputer(); break;
 	case DEMOSTRATE_MAZE: demostrateMaze(); break;
 	case CUSTOM_MAZE: customMaze(); break;
-	} //need to be divided into method soon
+	}
 	setStatus(STOPPED);
 
 	return 1;
