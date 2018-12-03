@@ -1,20 +1,18 @@
 #include "maze.h"
 
-int mazeGenerator(OneMap*);
+int mazeGenerator(OneMap);
 bool isSameLoc(Axis, Axis);
 wchar_t* getStr(int);
-bool isInvaildMove(OneMap*, Player*, int, int);
+bool isInvaildMove(OneMap, Player*, int, int);
 // Layer 1 methods
 
 extern Game maze;
 extern int initalizeElement();
 extern Element* linkEachElement(Element*);
-extern int generateMazeMap(OneMap*);
+extern int generateMazeMap(OneMap);
 
-int mazeGenerator(OneMap* target)
+int mazeGenerator(OneMap target)
 {
-	wprintf(L"생성된 미로 맵 참조 포인터 넘기기\n");
-
 	initalizeElement();
 	generateMazeMap(target);
 
@@ -38,9 +36,9 @@ wchar_t * getStr(int max_len)
 
 	return ret_str;
 }
-bool isInvaildMove(OneMap* map, Player * player, int diffx, int diffy)
+bool isInvaildMove(OneMap map, Player * player, int diffx, int diffy)
 {
-	if ((*map)[player->currentLocation.y + diffy][player->currentLocation.x + diffx] != NON_BLOCKED)
+	if (map[(player->currentLocation.y + diffy) * MAXMAPLENGTH + player->currentLocation.x + diffx] != NON_BLOCKED)
 		return true;
 	else
 		return false;

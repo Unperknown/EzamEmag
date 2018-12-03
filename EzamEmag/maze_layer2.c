@@ -1,16 +1,16 @@
 #include "maze.h"
 
 Player setOnePlayer();
-int createOneMaze(OneMap*);
+int createOneMaze(OneMap);
 int isStageEnd();
-void printOneMap(int, int, OneMap*);
-void changeCondition(OneMap*, Player*, int, int);
+void printOneMap(int, int, OneMap);
+void changeCondition(OneMap, Player*, int, int);
 // layer 2 methods
 
-extern int mazeGenerator(OneMap*);
+extern int mazeGenerator(OneMap);
 extern bool isSameLoc(Axis, Axis);
 extern wchar_t * getStr(int);
-extern bool isInvaildMove(OneMap*, Player*, int, int);
+extern bool isInvaildMove(OneMap, Player*, int, int);
 // import layer 1 methods
 
 extern int getch_();
@@ -32,9 +32,8 @@ Player setOnePlayer()
 
 	return retPlayer;
 }
-int createOneMaze(OneMap* target)
+int createOneMaze(OneMap target)
 {
-	wprintf(L"만들어진 맵 넘기기\n");
 	mazeGenerator(target);
 	return 1;
 }
@@ -47,20 +46,22 @@ int isStageEnd()
 	return (!player1 && player2) || (player1 && !player2) ? (player1 ? PLAYER1_WON : PLAYER2_WON) : NOTEND;
 	//player1 XOR player2: check whether who won this stage
 }
-void printOneMap(int xaxis, int yaxis, OneMap* target)
+void printOneMap(int xaxis, int yaxis, OneMap target)
 {
 	cersorMoveTo(xaxis, yaxis);
 	for (int i = 0; i < MAXMAPLENGTH * MAXMAPLENGTH; i++) {
 		if (i % MAXMAPLENGTH == 0) cersorMoveTo(xaxis, yaxis + i / MAXMAPLENGTH);
-		wprintf(L"%c", ((wchar_t*)(*target))[i]);
+		wprintf(L"%c", target[i]);
 	}
 	cersorMoveTo(0, PY);
 }
-void changeCondition(OneMap* target, Player* player, int diffx, int diffy)
+void changeCondition(OneMap target, Player* player, int diffx, int diffy)
 {
 	if (isInvaildMove(target, player, diffx, diffy))
 		return;
 	
-	(*target)[player->currentLocation.y][player->currentLocation.x] = NON_BLOCKED;
-	(*target)[player->currentLocation.y += diffy][player->currentLocation.x += diffx] = player->mark;
+	target[player->currentLocation.y * MAXMAPLENGTH + player->currentLocation.x] = NON_BLOCKED;
+	player->currentLocation.x += diffx;
+	player->currentLocation.y += diffy;
+	target[player->currentLocation.y * MAXMAPLENGTH + player->currentLocation.x] = player->mark;
 }

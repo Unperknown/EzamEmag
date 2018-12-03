@@ -44,7 +44,7 @@ typedef struct {
 	int score;
 } Player;
 
-typedef wchar_t OneMap[29][29];
+typedef wchar_t* OneMap;
 
 typedef struct {
 	OneMap first;

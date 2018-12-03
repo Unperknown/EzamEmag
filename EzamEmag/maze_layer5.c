@@ -13,10 +13,10 @@ int demostrateMaze();
 int customMaze();
 //layer 5 methods
 
-extern int allocateMapMemory(OneMap *);
 extern int setGameData(int, int);
 extern int executeGame();
 extern int selectByCersor();
+extern int allocateMapMemory(OneMap);
 //import layer 4 methods
 
 int checkExitStatus()
@@ -43,6 +43,8 @@ enum status getStatus()
 int setInitalValue()
 {
 	setStatus(INITAL);
+	maze.maps.first = (OneMap)malloc(MAXMAPLENGTH * MAXMAPLENGTH * sizeof(wchar_t));
+	maze.maps.second = (OneMap)malloc(MAXMAPLENGTH * MAXMAPLENGTH * sizeof(wchar_t));
 
 	return 1;
 }

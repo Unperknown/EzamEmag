@@ -4,7 +4,7 @@ Element* nodeOfMap;
 
 int initalizeElement();
 Element* linkEachElement(Element*);
-int generateMazeMap(OneMap*);
+int generateMazeMap(OneMap);
 int getch_();
 void cersorMoveTo(int, int);
 //layer 0 methods
@@ -107,8 +107,9 @@ Element * linkEachElement(Element *target)
 
 	return target->parent;
 }
-int generateMazeMap(OneMap * target)
+int generateMazeMap(OneMap target)
 {
+	//will be REFACTORED soon
 	Element *start, *last;
 
 	start = nodeOfMap + 1 + MAXMAPLENGTH;
@@ -118,17 +119,12 @@ int generateMazeMap(OneMap * target)
 
 	while ((last = linkEachElement(last)) != start);
 
-	//for (int i = 0; i < sizeof(OneMap); i++) {
-	//	((wchar_t *)*target)[i] = nodeOfMap[i].condition;
-	//}
-	for (int i = 0; i < MAXMAPLENGTH; i++) {
-		for (int j = 0; j < MAXMAPLENGTH; j++) {
-			(*target)[i][j] = nodeOfMap[j + i * MAXMAPLENGTH].condition;
-		}
+	for (int i = 0; i < MAXMAPLENGTH * MAXMAPLENGTH; i++) {
+		target[i] = nodeOfMap[i].condition;
 	}
 
-	(*target)[0][1] = STARTPOINT;
-	(*target)[28][27] = ENDPOINT;
+	target[1] = STARTPOINT;
+	target[28 * MAXMAPLENGTH + 27] = ENDPOINT;
 
 	return 1;
 }
