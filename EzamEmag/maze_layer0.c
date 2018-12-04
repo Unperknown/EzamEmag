@@ -7,6 +7,7 @@ Element* linkEachElement(Element*);
 int generateMazeMap(OneMap);
 int getch_();
 void cersorMoveTo(int, int);
+void* nullFunction(void *);
 //layer 0 methods
 
 int initalizeElement() {
@@ -142,4 +143,8 @@ void cersorMoveTo(int x, int y)
 	static HANDLE handle;
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(handle, position);
+}
+void* nullFunction(void * arg)
+{
+	return NULL;
 }
