@@ -1,8 +1,5 @@
 #include "maze.h"
 
-int checkExitStatus();
-int setStatus(enum status);
-enum status getStatus();
 int setInitalValue();
 int printOption();
 int chooseOption();
@@ -11,48 +8,45 @@ int playMultiMaze();
 int playMazeWithComputer();
 int demostrateMaze();
 int customMaze();
+int exited();
 //layer 5 methods
 
-extern int setGameData(int, int);
+extern int setGameData(bool, bool);
 extern int executeGame();
+extern int setComputer();
+//import Layer 4 methods
+
+extern int mazeGenerate(OneMap);
+// import Layer 3 methods
+
 extern int selectByCersor();
-extern int setComputer(Player, OneMap);
-//import layer 4 methods
+// import Layer 1 methods
 
-extern int retByComputer();
-//import Layer 3 methods
-
-extern int getch_();
-extern void cersorMoveTo(int, int);
-extern int nullFunction();
+extern int setStatus(enum status);
+extern enum status getStatus();
 // import Layer 0 methods
 
-int checkExitStatus()
-{
-	if (getStatus() == EXIT)
-	{
-		wprintf(L"프로그램을 종료한대요!\n"); //need to be improved
-		getwchar();
-		getwchar();
-		exit(EXIT_FAILURE);
-		return 0;
-	}
-	return 1;
-}
-int setStatus(enum status value)
-{
-	Status = value;
-	return 1;
-}
-enum status getStatus()
-{
-	return Status;
-}
 int setInitalValue()
 {
 	setStatus(INITAL);
-	maze.maps.first = (OneMap)calloc(MAXMAPLENGTH * MAXMAPLENGTH, sizeof(wchar_t));
-	maze.maps.second = (OneMap)calloc(MAXMAPLENGTH * MAXMAPLENGTH, sizeof(wchar_t));
+
+	//allocate each maze map
+	maze.players.player1.mazeMap = (OneMap)calloc(MAXMAP, sizeof(wchar_t));
+	maze.players.player2.mazeMap = (OneMap)calloc(MAXMAP, sizeof(wchar_t));
+	maze.computer.information.mazeMap = (OneMap)calloc(MAXMAP, sizeof(wchar_t));
+
+	//generate each maze map
+	mazeGenerate(maze.players.player1.mazeMap);
+	mazeGenerate(maze.players.player2.mazeMap);
+	mazeGenerate(maze.computer.information.mazeMap);
+
+	//set location to startpoint
+	maze.players.player1.currentLocation.x = STARTX;
+	maze.players.player1.currentLocation.y = STARTY;
+	maze.players.player2.currentLocation.x = STARTX;
+	maze.players.player2.currentLocation.y = STARTY;
+	maze.computer.information.currentLocation.x = STARTX;
+	maze.computer.information.currentLocation.y = STARTY;
 
 	return 1;
 }
@@ -65,7 +59,7 @@ int printOption()
 	wprintf(L"%ls▷	둘 이 서\n\n", BLANK);
 	wprintf(L"%ls▷	관 전 하 기\n\n", BLANK);
 	wprintf(L"%ls▷	컴 퓨 터 랑\n\n", BLANK);
-	wprintf(L"%ls▷	직 접 게 임", BLANK);
+	wprintf(L"%ls▷	종 료 하 기", BLANK);
 	return 1;
 }
 int chooseOption()
@@ -76,46 +70,46 @@ int chooseOption()
 	case MULTIPLE_MAZE: setStatus(MULTIPLE_MAZE); break;
 	case MAZE_WITH_COMPUTER: setStatus(MAZE_WITH_COMPUTER); break;
 	case DEMOSTRATE_MAZE: setStatus(DEMOSTRATE_MAZE); break;
-	case CUSTOM_MAZE: setStatus(CUSTOM_MAZE); break;
 	case EXIT: setStatus(EXIT); break;
 	} //will be refactored soon
 	return 1;
 }
 int playSingleMaze()
 {
-	setGameData(1, 1);
+	maze.isOnlyOneMap = true;
+	maze.isPlayer2Exists = false;
+	setGameData(false, false);
 	executeGame();
 	return 1;
 }
 int playMultiMaze()
 {
-	setGameData(2, 2);
+	maze.isOnlyOneMap = false;
+	maze.isPlayer2Exists = true;
+	setGameData(true, false);
 	executeGame();
 	return 1;
 }
 int playMazeWithComputer()
 {
-	setGameData(2, 2);
-	setComputer(maze.players.first, maze.maps.first);
+	maze.isOnlyOneMap = false;
+	maze.isPlayer2Exists = true;
+	setGameData(true, true);
+	setComputer();
 	executeGame();
 	return 1;
 }
 int demostrateMaze()
 {
-	setGameData(1, 1);
-	setComputer(maze.players.first, maze.maps.first);
-	//for (int i = 0; i < MAXMAP; i++) {
-	//	if (i % MAXMAPLENGTH == 0) wprintf(L"\n");
-	//	wprintf(L"%lc", maze.computer.solvedMaze[i]);
-	//}
-	//while (true);
+	maze.isOnlyOneMap = true;
+	maze.isPlayer2Exists = false;
+	setGameData(false, true);
+	setComputer();
 	executeGame();
-	//Function overloading is not supported in C...
 	return 1;
 }
-int customMaze()
+int exited()
 {
-	setGameData(2, 2);
-	executeGame();
-	return 1;
+	exit(EXIT_FAILURE);
+	return 0;
 }

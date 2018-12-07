@@ -1,140 +1,146 @@
 #include "maze.h"
 
-int mazeGenerate(int);
-int setPlayerInformation(int);
-void printMaze();
-int updateMaze(int);
+int mazeGenerate(OneMap);
+int setMark(Player *);
+int setComputer();
+void printTitle();
+void printMap();
+void playMazeByKey();
 void showWinner();
-int retByComputer();
-void* playerUpdate(void *);
-void* computerUpdate(void *);
 // layer 3 methods
 
-extern Player setOnePlayer();
-extern int createOneMaze(OneMap);
+pthread_mutex_t update = PTHREAD_MUTEX_INITIALIZER;
+
 extern int isStageEnd();
-extern int isComputerEnd();
-extern void printOneMap(int, int, OneMap);
-extern void changeCondition(OneMap, Player*, int, int);
-extern void updateMap(Axis, int, int, OneMap);
+extern void printOneMap(const int, const int, OneMap);
+extern void changeCondition(Player*, const int, const int);
+extern int updateMaze(const int, Player*, const int);
+extern void updateElement(const Player, const int);
+extern int retByComputer();
 extern int getBestWayOfMaze(int, int);
-// import layer 2 methods
+extern void* nullFunction(void *);
+extern void* player1Map(void *);
+extern void* player2Map(void *);
+extern void* computerMap(void *);
+extern void* player1Update(void *);
+extern void* player2Update(void *);
+extern void* computerUpdate(void *);
+// import Layer 2 methods
 
+extern bool solveMaze(int, int);
+// import Layer 1 methods
+
+extern enum status getStatus();
 extern wchar_t* getStr(int);
-// import layer 1 method
-
-extern int getch_();
-extern void cersorMoveTo(int x, int y);
+extern int getChr();
+extern void cersorMoveTo(int, int);
+extern int initalizeElement();
+extern int generateMazeMap(OneMap);
 // import Layer 0 methods
 
-int mazeGenerate(int quantityOfMaze)
+int mazeGenerate(OneMap targetMap)
 {
-	createOneMaze(maze.maps.first);
-	
-	if (quantityOfMaze == 2)
-		createOneMaze(maze.maps.second);
+	initalizeElement();
+	generateMazeMap(targetMap);
 	
 	return 1;
 }
-int setPlayerInformation(int amountOfPlayer)
+int setMark(Player * targetP)
 {
-	maze.players.first = setOnePlayer();
-	
-	if (amountOfPlayer == 2)
-		maze.players.second = setOnePlayer();
+	system("cls");
+	wprintf(L"\n\n\n\n");
+	wprintf(L"%ls어떤 문양으로 하시겠습니까?\n\n%ls▶", BLANK, BLANK);
+
+	targetP->mark = getStr(MAXSTR)[0];
 
 	return 1;
 }
-int updateMaze(int key)
-{
-	//will be REFACTORED soon: too much complicated
-	switch (key) {
-	case A:
-		changeCondition(maze.maps.first, &maze.players.first, -MOVEGAP, 0);
-		updateMap(maze.players.first.currentLocation, P1PX, PY, maze.maps.first);
-		break;
-	case W:
-		changeCondition(maze.maps.first, &maze.players.first, 0, -MOVEGAP);
-		updateMap(maze.players.first.currentLocation, P1PX, PY, maze.maps.first);
-		break;
-	case S:
-		changeCondition(maze.maps.first, &maze.players.first, 0, MOVEGAP);
-		updateMap(maze.players.first.currentLocation, P1PX, PY, maze.maps.first);
-		break;
-	case D:
-		changeCondition(maze.maps.first, &maze.players.first, MOVEGAP, 0);
-		updateMap(maze.players.first.currentLocation, P1PX, PY, maze.maps.first);
-		break;
-	case LEFT:
-		changeCondition(maze.maps.second, &maze.players.second, -MOVEGAP, 0);
-		updateMap(maze.players.second.currentLocation, P2PX, PY, maze.maps.second);
-		break;
-	case UP:
-		changeCondition(maze.maps.second, &maze.players.second, 0, -MOVEGAP);
-		updateMap(maze.players.second.currentLocation, P2PX, PY, maze.maps.second);
-		break;
-	case DOWN:
-		changeCondition(maze.maps.second, &maze.players.second, 0, MOVEGAP);
-		updateMap(maze.players.second.currentLocation, P2PX, PY, maze.maps.second);
-		break;
-	case RIGHT:
-		changeCondition(maze.maps.second, &maze.players.second, MOVEGAP, 0);
-		updateMap(maze.players.second.currentLocation, P2PX, PY, maze.maps.second);
-		break;
+int setComputer()
+{	
+	maze.computer.information.mark = L'ⓒ';
+	for (int i = 0; i < MAXMAP; i++) {
+		maze.computer.alreadyPassed[i] = false;
+		maze.computer.correctPath[i] = L' ';
 	}
-	return 0;
+	
+	solveMaze(STARTX, STARTY);
+
+	return 1;
 }
-void printMaze()
+void printTitle()
 {
-	//will be refactored soon
 	system("cls");
-	cersorMoveTo(0, 0);
-	wprintf(L"\n\n\n");
-	wprintf(L"%ls미	로	찾	기", BLANK);
-	printOneMap(P1PX, PY, maze.maps.first);
-	printOneMap(P2PX, PY, maze.maps.second);
+	cersorMoveTo(0, 2);
+	wprintf(L"%ls**종료는 ESC**\n", BLANK);
+	wprintf(L"%ls	왼쪽(가운데) 맵 방향키%ls오른쪽 맵 방향키\n", HALFBLANK, MIDDLEBLANK);
+	wprintf(L"%ls		Ｗ%ls		↑\n", HALFBLANK, MIDDLEBLANK);
+	wprintf(L"%ls	Ａ	Ｓ	Ｄ%ls←	↓	→\n", HALFBLANK, MIDDLEBLANK);
+}
+void printMap()
+{
+	switch (getStatus())
+	{
+	case SINGLE_MAZE:
+		player1Map(NULL);
+		break;
+	case MULTIPLE_MAZE:
+		player1Map(NULL);
+		player2Map(NULL);
+		break;
+	case MAZE_WITH_COMPUTER:
+		computerMap(NULL);
+		player2Map(NULL);
+		break;
+	case DEMOSTRATE_MAZE:
+		computerMap(NULL);
+		break;
+	} //will be refactored soon
+
+}
+void playMazeByKey()
+{
+	pthread_t left, right;
+
+	switch (getStatus())
+	{
+	case SINGLE_MAZE:
+		pthread_create(&left, NULL, player1Update, NULL);
+		pthread_create(&right, NULL, nullFunction, NULL);
+		break;
+	case MULTIPLE_MAZE:
+		pthread_create(&left, NULL, player1Update, NULL);
+		pthread_create(&right, NULL, player2Update, NULL);
+		break;
+	case MAZE_WITH_COMPUTER:
+		pthread_create(&left, NULL, computerUpdate, NULL);
+		pthread_create(&right, NULL, player2Update, NULL);
+		break;
+	case DEMOSTRATE_MAZE:
+		pthread_create(&left, NULL, computerUpdate, NULL);
+		pthread_create(&right, NULL, nullFunction, NULL);
+		break;
+	} //will be refactored soon
+
+	pthread_join(left, NULL);
+	pthread_join(right, NULL);
+
+	pthread_mutex_destroy(&update);
 }
 void showWinner()
 {
 	system("cls");
+	wprintf(L"\n\n\n\n%ls", BLANK);
 	switch (isStageEnd()) {
 	case PLAYER1_WON:
-		wprintf(L"\n\n\n\n");
-		wprintf(L"%ls플레이어 1이(가) 승리하였습니다!\n", BLANK);
-		getStr(MAXSTR);
-		return;
+		wprintf(L"%ls승리하였습니다!\n", maze.isOnlyOneMap ? "" : L"왼쪽 플레이어가 ");
 		break;
 	case PLAYER2_WON:
-		wprintf(L"\n\n\n\n");
-		wprintf(L"%ls플레이어 2이(가) 승리하였습니다!\n", BLANK); 
-		getStr(MAXSTR);
-		return;
+		wprintf(L"오른쪽 플레이어가 승리하였습니다!\n");
+		break;
+	case COMPUTER_WON:
+		wprintf(L"컴퓨터가 승리하였습니다!\n");
 		break;
 	}
-	if (isComputerEnd() == COMPUTER_WON) {
-		wprintf(L"\n\n\n\n");
-		wprintf(L"%ls컴퓨터가 승리하였습니다!", BLANK);
-		getStr(MAXSTR);
-		return;
-	}
-}
-int retByComputer()
-{
-	return getBestWayOfMaze(maze.computer.currentPoint.x, maze.computer.currentPoint.y);
-}
-void* playerUpdate(void * arg)
-{
-	while (!isStageEnd() && !isComputerEnd()) 
-		updateMaze(getch_());
-
-	return NULL;
-}
-void* computerUpdate(void * arg)
-{
-	while (!isComputerEnd() && !isStageEnd()) {
-		updateMaze(retByComputer());
-		Sleep(500);
-	}
-
-	return NULL;
+	
+	getStr(MAXSTR);
 }

@@ -1,97 +1,187 @@
 #include "maze.h"
 
-Player setOnePlayer();
-int createOneMaze(OneMap);
 int isStageEnd();
-void printOneMap(int, int, OneMap);
-void changeCondition(OneMap, Player*, int, int);
-void updateMap(Axis, int, int, OneMap);
+void printOneMap(const int, const int, const OneMap);
+void changeCondition(Player*, const int, const int);
+int updateMaze(const int, Player*, const int);
+void updateElement(const Player, const int);
+int retByComputer();
 int getBestWayOfMaze(int, int);
+void* nullFunction(void *);
+void* player1Map(void *);
+void* player2Map(void *);
+void* computerMap(void *);
+void* player1Update(void *);
+void* player2Update(void *);
+void* computerUpdate(void *);
 // layer 2 methods
 
-extern int mazeGenerator(OneMap);
-extern bool isSameLoc(Axis, Axis);
-extern wchar_t * getStr(int);
-extern bool isInvaildMove(OneMap, Player*, int, int);
-extern bool solveMaze();
+extern pthread_mutex_t update;
+// import layer 3 attributes
+
+extern bool isInvaildMove(const OneMap, const Axis, const int, const int);
+extern bool solveMaze(int, int);
+extern int selectByCersor();
 // import layer 1 methods
 
-extern int getch_();
+extern int getChr();
 extern void cersorMoveTo(int, int);
+extern bool isSameLoc(const Axis, const Axis);
 // import Layer 0 methods
 
-Player setOnePlayer()
-{
-	//will be refactored soon
-	system("cls");
-	wprintf(L"\n\n\n\n");
-	wprintf(L"%ls어떤 문양으로 하시겠습니까?\n\n%ls▶", BLANK, BLANK);
-	Player retPlayer;
-
-	retPlayer.mark = getStr(MAXSTR)[0];
-	retPlayer.score = 0;
-	retPlayer.currentLocation.x = STARTX;
-	retPlayer.currentLocation.y = STARTY;
-
-	return retPlayer;
-}
-int createOneMaze(OneMap target)
-{
-	mazeGenerator(target);
-	return 1;
-}
 int isStageEnd()
 {
 	Axis EndPoint = { STOPX, STOPY };
-	bool player1 = isSameLoc(maze.players.first.currentLocation, EndPoint);
-	bool player2 = isSameLoc(maze.players.second.currentLocation, EndPoint);
 
-	return (!player1 && player2) || (player1 && !player2) ? (player1 ? PLAYER1_WON : PLAYER2_WON) : NOTEND;
-	//player1 XOR player2: check whether who won this stage
-}
-int isComputerEnd()
-{
-	Axis EndPoint = { STOPX, STOPY };
-	if (isSameLoc(maze.computer.currentPoint, EndPoint)) return COMPUTER_WON;
+	if (isSameLoc(maze.players.player1.currentLocation, EndPoint)) return PLAYER1_WON;
+	if (isSameLoc(maze.players.player2.currentLocation, EndPoint)) return PLAYER2_WON;
+	if (isSameLoc(maze.computer.information.currentLocation, EndPoint)) return COMPUTER_WON;
 	return NOTEND;
 }
-void printOneMap(int xaxis, int yaxis, OneMap target)
+void printOneMap(const int xaxis, const int yaxis, const OneMap targetMap)
 {
 	cersorMoveTo(xaxis, yaxis);
 	for (int i = 0; i < MAXMAPLENGTH * MAXMAPLENGTH; i++) {
 		if (i % MAXMAPLENGTH == 0) cersorMoveTo(xaxis, yaxis + i / MAXMAPLENGTH);
-		wprintf(L"%lc", target[i]);
+		wprintf(L"%lc", targetMap[i]);
 	}
-	cersorMoveTo(0, PY);
+	cersorMoveTo(0, 2);
 }
-void changeCondition(OneMap target, Player* player, int diffx, int diffy)
+void changeCondition(Player* targetP, const int diffx, const int diffy)
 {
-	if (isInvaildMove(target, player, diffx, diffy))
+	if (isInvaildMove(targetP->mazeMap, targetP->currentLocation, diffx, diffy))
 		return;
 	
-	target[player->currentLocation.y * MAXMAPLENGTH + player->currentLocation.x] = NON_BLOCKED;
-	player->currentLocation.x += diffx;
-	player->currentLocation.y += diffy;
-	target[player->currentLocation.y * MAXMAPLENGTH + player->currentLocation.x] = player->mark;
+	targetP->lastLocation.x = targetP->currentLocation.x;
+	targetP->lastLocation.y = targetP->currentLocation.y;
+	targetP->mazeMap[targetP->currentLocation.y * MAXMAPLENGTH + targetP->currentLocation.x] = NON_BLOCKED;
+	targetP->currentLocation.x += diffx;
+	targetP->currentLocation.y += diffy;
+	targetP->mazeMap[targetP->currentLocation.y * MAXMAPLENGTH + targetP->currentLocation.x] = targetP->mark;
 }
-void updateMap(Axis standard, int mapx, int mapy, OneMap target)
+int updateMaze(const int key, Player* currentPlayer, const int screenXAxis)
 {
-	cersorMoveTo(mapx + standard.x * UPDATEGAP, mapy + standard.y);
-	wprintf(L"%lc", target[standard.y * MAXMAPLENGTH + standard.x]);
-	cersorMoveTo(0, PY);
+	switch (key) {
+	case A:
+	case L'ㅁ':
+	case LEFT:
+		changeCondition(currentPlayer, -MOVEGAP, 0);
+		updateElement(*currentPlayer, screenXAxis);
+		break;
+	case W:
+	case L'ㅈ':
+	case UP:
+		changeCondition(currentPlayer, 0, -MOVEGAP);
+		updateElement(*currentPlayer, screenXAxis);
+		break;
+	case S:
+	case L'ㄴ':
+	case DOWN:
+		changeCondition(currentPlayer, 0, MOVEGAP);
+		updateElement(*currentPlayer, screenXAxis);
+		break;
+	case D:
+	case L'ㅇ':
+	case RIGHT:
+		changeCondition(currentPlayer, MOVEGAP, 0);
+		updateElement(*currentPlayer, screenXAxis);
+		break;
+	}
+
+	return 0;
+}
+void updateElement(const Player targetP, const int screenXAxis)
+{
+	cersorMoveTo(screenXAxis + targetP.lastLocation.x * UPDATEGAP, PY + targetP.lastLocation.y);
+	wprintf(L"%lc", targetP.mazeMap[targetP.lastLocation.y * MAXMAPLENGTH + targetP.lastLocation.x]);
+
+	cersorMoveTo(screenXAxis + targetP.currentLocation.x * UPDATEGAP, PY + targetP.currentLocation.y);
+	wprintf(L"%lc", targetP.mazeMap[targetP.currentLocation.y * MAXMAPLENGTH + targetP.currentLocation.x]);
+	cersorMoveTo(0, 2);
+}
+int retByComputer()
+{
+	return getBestWayOfMaze(maze.computer.information.currentLocation.x, maze.computer.information.currentLocation.y);
 }
 int getBestWayOfMaze(int currX, int currY)
 {
-	wchar_t retVal = maze.computer.solvedMaze[currY * MAXMAPLENGTH + currX];
-	if (retVal == A) {
-		maze.computer.currentPoint.x--;
-	} else if (retVal == W) {
-		maze.computer.currentPoint.y--;
-	} else if (retVal == S) {
-		maze.computer.currentPoint.y++;
-	} else if (retVal == D) {
-		maze.computer.currentPoint.x++;
+	return maze.computer.correctPath[currY * MAXMAPLENGTH + currX];
+}
+
+void* nullFunction(void * arg)
+{
+	while (!isStageEnd) {
+		pthread_mutex_lock(&update);
+		wprintf(L"null\n");
+		getChr();
+		pthread_mutex_unlock(&update);
+	}
+	return NULL;
+}
+void* player1Map(void * arg)
+{
+	if (maze.isOnlyOneMap)
+		printOneMap(PX, PY, maze.players.player1.mazeMap);
+	else
+		printOneMap(P1PX, PY, maze.players.player1.mazeMap);
+
+	return NULL;
+}
+void* player2Map(void *arg)
+{
+	printOneMap(P2PX, PY, maze.players.player2.mazeMap);
+
+	return NULL;
+}
+void* computerMap(void * arg)
+{
+	if (maze.isOnlyOneMap)
+		printOneMap(PX, PY, maze.computer.information.mazeMap);
+	else
+		printOneMap(P1PX, PY, maze.computer.information.mazeMap);
+
+	return NULL;
+}
+void* player1Update(void * arg)
+{
+	while (!isStageEnd()) {
+		pthread_mutex_lock(&update);
+		wprintf(L"player1\n");
+		if (maze.isOnlyOneMap)
+			updateMaze(getChr(), &maze.players.player1, PX);
+		else
+			updateMaze(getChr(), &maze.players.player1, P1PX);
+		
+		Sleep(50);
+		pthread_mutex_unlock(&update);
 	}
 
-	return retVal;
+	return NULL;
+}
+void* player2Update(void * arg)
+{
+	while (!isStageEnd()) {
+		pthread_mutex_lock(&update);
+		wprintf(L"player2\n");
+		if (maze.isPlayer2Exists)
+			updateMaze(getChr(), &maze.players.player2, P2PX);
+		Sleep(50);
+		pthread_mutex_unlock(&update);
+	}
+
+	return NULL;
+}
+void* computerUpdate(void * arg)
+{
+	while (!isStageEnd()) {
+		pthread_mutex_lock(&update);
+		wprintf(L"computer\n");
+		if (maze.isOnlyOneMap)
+			updateMaze(retByComputer(), &maze.computer.information, PX);
+		else
+			updateMaze(retByComputer(), &maze.computer.information, P1PX);
+		Sleep(100);
+		pthread_mutex_unlock(&update);
+	}
+	return NULL;
 }

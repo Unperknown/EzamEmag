@@ -1,86 +1,115 @@
 #include "maze.h"
 
-int mazeGenerator(OneMap);
-bool isSameLoc(Axis, Axis);
-wchar_t* getStr(int);
-bool isInvaildMove(OneMap, Player*, int, int);
-bool solveMaze();
+bool isInvaildMove(const OneMap, const Axis, const int, const int);
+bool solveMaze(int, int);
+int selectByCersor();
 // Layer 1 methods
 
-extern Game maze;
+extern int setStatus(const enum status);
+extern enum status getStatus();
+extern wchar_t* getStr(const int);
+extern int getChr();
+extern void cersorMoveTo(const int, const int);
+extern bool isSameLoc(const Axis, const Axis);
 extern int initalizeElement();
 extern Element* linkEachElement(Element*);
 extern int generateMazeMap(OneMap);
+// import Layer 0 methods
 
-int mazeGenerator(OneMap target)
+bool isInvaildMove(const OneMap targetMap, const Axis currLoc, const int diffx, const int diffy)
 {
-	initalizeElement();
-	generateMazeMap(target);
-
-	return 1;
-}
-bool isSameLoc(Axis standard, Axis target)
-{
-	return standard.x == target.x && standard.y == target.y;
-}
-wchar_t * getStr(int max_len)
-{
-	wchar_t * ret_str = (wchar_t *)malloc(sizeof(wchar_t) * max_len);
-	ret_str = fgetws(ret_str, max_len, stdin);
-
-	if (ret_str)
-	{
-		wchar_t * newline = wcschr(ret_str, '\n');
-		if (newline) *newline = '\0';
-		else while (getwchar() != '\n') continue;
-	}
-
-	return ret_str;
-}
-bool isInvaildMove(OneMap map, Player * player, int diffx, int diffy)
-{
-	if (map[(player->currentLocation.y + diffy) * MAXMAPLENGTH + player->currentLocation.x + diffx] != NON_BLOCKED)
+	if (targetMap[(currLoc.y + diffy) * MAXMAPLENGTH + currLoc.x + diffx] != NON_BLOCKED)
+		return true;
+	else if ((currLoc.x + diffx) < 0 || (currLoc.x + diffx) > MAXMAPLENGTH || (currLoc.y + diffy) < 0 || (currLoc.y + diffy) > MAXMAPLENGTH)
 		return true;
 	else
 		return false;
 }
 bool solveMaze(int xaxis, int yaxis)
 {
-	//기저 조건들!
-	if (maze.computer.targetMap[yaxis * MAXMAPLENGTH + xaxis] == BLOCKED) return false;
+	if (maze.computer.information.mazeMap[yaxis * MAXMAPLENGTH + xaxis] == BLOCKED)
+		return false;
 	//현재 좌표가 막혀 있으면 false
-	if (maze.computer.alreadyPassed[yaxis * MAXMAPLENGTH + xaxis] == true) return false;
+	if (maze.computer.alreadyPassed[yaxis * MAXMAPLENGTH + xaxis] == true)
+		return false;
 	//이미 지나간 좌표면 false
-	if (xaxis == STOPX && yaxis == STOPY) return true;
+	if (xaxis == STOPX && yaxis == STOPY) {
+		maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = S;
+		return true;
+	}
 	//끝점에 도달하면 true
 
-	if (xaxis == STARTX && yaxis == STARTY) maze.computer.solvedMaze[yaxis * MAXMAPLENGTH + xaxis] = S;
+	if (xaxis == STARTX && yaxis == STARTY)
+		maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = S;
 
 	maze.computer.alreadyPassed[yaxis * MAXMAPLENGTH + xaxis] = true;
 	if (xaxis >= 0) {
 		if (solveMaze(xaxis - 1, yaxis)) {
-			maze.computer.solvedMaze[yaxis * MAXMAPLENGTH + xaxis] = A;
+			maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = A;
 			return true;
 		}
 	}
 	if (xaxis <= MAXMAPLENGTH - 1) {
 		if (solveMaze(xaxis + 1, yaxis)) {
-			maze.computer.solvedMaze[yaxis * MAXMAPLENGTH + xaxis] = D;
+			maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = D;
 			return true;
 		}
 	}
 	if (yaxis >= 0) {
 		if (solveMaze(xaxis, yaxis - 1)) {
-			maze.computer.solvedMaze[yaxis * MAXMAPLENGTH + xaxis] = W;
+			maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = W;
 			return true;
 		}
 	}
 	if (yaxis <= MAXMAPLENGTH - 1) {
 		if (solveMaze(xaxis, yaxis + 1)) {
-			maze.computer.solvedMaze[yaxis * MAXMAPLENGTH + xaxis] = S;
+			maze.computer.correctPath[yaxis * MAXMAPLENGTH + xaxis] = S;
 			return true;
 		}
 	}
 
 	return false;
+}
+int selectByCersor()
+{
+	Axis cersor;
+	cersor.x = INITX;
+	cersor.y = INITFIROP;
+
+	bool isSelected = true;
+
+	//will be refactored soon
+	while (isSelected) {
+		cersor.y = cersor.y < INITFIROP ? INITFIFOP : (cersor.y > INITFIFOP ? INITFIROP : cersor.y);
+		cersorMoveTo(cersor.x, cersor.y);
+		switch (getChr()) {
+		case UP:
+			cersor.y -= INITSCRGAP;
+			break;
+		case DOWN:
+			cersor.y += INITSCRGAP;
+			break;
+		case ENTER:
+			switch (cersor.y) {
+			case INITFIROP:
+				return SINGLE_MAZE;
+				break;
+			case INITSECOP:
+				return MULTIPLE_MAZE;
+				break;
+			case INITTHROP:
+				return DEMOSTRATE_MAZE;
+				break;
+			case INITFOUOP:
+				return MAZE_WITH_COMPUTER;
+				break;
+			case INITFIFOP:
+				return EXIT;
+				break;
+			}
+			break;
+		}
+	}
+	
+	return 1;
 }

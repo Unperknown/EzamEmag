@@ -5,9 +5,6 @@ int playGame();
 bool isEnd();
 //layer 6 methods
 
-extern int checkExitStatus();
-extern int setStatus(enum status);
-extern enum status getStatus();
 extern int setInitalValue();
 extern int printOption();
 extern int chooseOption();
@@ -16,7 +13,12 @@ extern int playMultiMaze();
 extern int playMazeWithComputer();
 extern int demostrateMaze();
 extern int customMaze();
+extern int exited();
 //import layer 5 methods
+
+extern int setStatus(const enum status);
+extern enum status getStatus();
+//import Layer 0 methods
 
 int mazeGame()
 {
@@ -40,8 +42,6 @@ int setInitalOption()
 }
 int playGame()
 {
-	checkExitStatus();
-
 	//will be refactored soon
 	switch (getStatus())
 	{
@@ -49,7 +49,7 @@ int playGame()
 	case MULTIPLE_MAZE: playMultiMaze(); break;
 	case MAZE_WITH_COMPUTER: playMazeWithComputer(); break;
 	case DEMOSTRATE_MAZE: demostrateMaze(); break;
-	case CUSTOM_MAZE: customMaze(); break;
+	case EXIT: exited(); break;
 	}
 	setStatus(STOPPED);
 
