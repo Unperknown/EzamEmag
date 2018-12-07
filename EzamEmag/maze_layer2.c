@@ -146,7 +146,6 @@ void* player1Update(void * arg)
 {
 	while (!isStageEnd()) {
 		pthread_mutex_lock(&update);
-		wprintf(L"player1\n");
 		if (maze.isOnlyOneMap)
 			updateMaze(getChr(), &maze.players.player1, PX);
 		else
@@ -162,7 +161,6 @@ void* player2Update(void * arg)
 {
 	while (!isStageEnd()) {
 		pthread_mutex_lock(&update);
-		wprintf(L"player2\n");
 		if (maze.isPlayer2Exists)
 			updateMaze(getChr(), &maze.players.player2, P2PX);
 		Sleep(50);
@@ -175,7 +173,6 @@ void* computerUpdate(void * arg)
 {
 	while (!isStageEnd()) {
 		pthread_mutex_lock(&update);
-		wprintf(L"computer\n");
 		if (maze.isOnlyOneMap)
 			updateMaze(retByComputer(), &maze.computer.information, PX);
 		else
